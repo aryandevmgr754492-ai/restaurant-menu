@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aurum — Fine Dining</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    /* ─── CSS Variables ─────────────────────────────────────────── */
+    :root {
+      --black:       #0a0a0a;
+      --deep:        #111111;
+      --card:        #161616;
+      --card-hover:  #1d1d1d;
+      --border:      rgba(196,160,78,0.18);
+      --gold:        #c4a04e;
+      --gold-light:  #e8c97a;
+      --gold-dim:    rgba(196,160,78,0.12);
+      --white:       #f5f0e8;
+      --muted:       rgba(245,240,232,0.45);
+      --red:         #c0392b;
+      --green:       #27ae60;
+      --radius:      14px;
+      --transition:  0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ─── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ─── Noise Texture Overlay ─────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    /* ─── Scrollbar ─────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--deep); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+    /* ─── Header ────────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 clamp(1.5rem, 5vw, 5rem);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .logo {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 3vw, 2.1rem);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--gold-light);
+    }
+    .logo-sub {
+      font-size: 0.62rem;
+      letter-spacing: 0.35em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .header-badge {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+    }
+
+    /* ─── Hero ──────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 5rem) clamp(3rem, 7vw, 6rem);
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,160,78,0.10) 0%, transparent 70%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .hero-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      color: var(--white);
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold-light);
+    }
+    .hero-desc {
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ─── Controls Bar ──────────────────────────────────────────── */
+    .controls {
+      position: sticky;
+      top: 72px;
+      z-index: 90;
+      background: rgba(10,10,10,0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 clamp(1.5rem, 5vw, 5rem);
+    }
+    .controls-inner {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: 1280px;
+      margin: 0 auto;
+      height: 64px;
+      flex-wrap: wrap;
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+      max-width: 320px;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      padding: 0.55rem 1rem 0.55rem 2.6rem;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-input:focus { border-color: var(--gold); }
+
+    /* Price filter */
+    .price-select {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      padding: 0.55rem 1.2rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--transition);
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg fill='%23c4a04e' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.9rem center;
+      background-size: 12px;
+      padding-right: 2.4rem;
+    }
+    .price-select:focus { border-color: var(--gold); }
+
+    /* Category tabs */
+    .cat-tabs {
+      display: flex;
+      gap: 0.4rem;
+      margin-left: auto;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      padding: 0.45rem 1.1rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition);
+    }
+    .cat-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .cat-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--black);
+      font-weight: 500;
+    }
+
+    /* ─── Main Content ──────────────────────────────────────────── */
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 3rem clamp(1.5rem, 5vw, 5rem) 5rem;
+    }
+
+    /* Section header */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+    }
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+    }
+    .section-count {
+      font-size: 0.72rem;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+    }
+
+    /* ─── Grid ──────────────────────────────────────────────────── */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ─── Card ──────────────────────────────────────────────────── */
+    .menu-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      cursor: default;
+      animation: fadeUp 0.5s ease both;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .menu-card:hover {
+      transform: translateY(-6px) scale(1.015);
+      box-shadow: 0 20px 60px rgba(196,160,78,0.12), 0 0 0 1px rgba(196,160,78,0.25);
+      border-color: rgba(196,160,78,0.4);
+      background: var(--card-hover);
+    }
+
+    /* Card image */
+    .card-img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      filter: brightness(0.88) saturate(0.9);
+      transition: filter var(--transition), transform var(--transition);
+    }
+    .menu-card:hover .card-img {
+      filter: brightness(0.95) saturate(1.05);
+      transform: scale(1.04);
+    }
+    .card-img-wrap {
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Popular badge */
+    .badge-popular {
+      position: absolute;
+      top: 0.8rem;
+      left: 0.8rem;
+      background: var(--gold);
+      color: var(--black);
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.7rem;
+      border-radius: 100px;
+    }
+
+    /* Card body */
+    .card-body {
+      padding: 1.2rem 1.3rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+    .card-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.22rem;
+      font-weight: 400;
+      line-height: 1.25;
+      color: var(--white);
+    }
+    .card-price {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      white-space: nowrap;
+    }
+    .card-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: auto;
+      padding-top: 0.6rem;
+    }
+
+    /* Veg / Non-veg indicator */
+    .food-type {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .food-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .food-dot.veg   { background: var(--green); box-shadow: 0 0 6px rgba(39,174,96,0.5); }
+    .food-dot.nonveg{ background: var(--red);   box-shadow: 0 0 6px rgba(192,57,43,0.5); }
+    .food-label.veg    { color: var(--green); }
+    .food-label.nonveg { color: var(--red); }
+
+    /* Category tag */
+    .card-cat-tag {
+      margin-left: auto;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+
+    /* ─── Empty state ───────────────────────────────────────────── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 5rem 1rem;
+      color: var(--muted);
+    }
+    .empty-state svg { margin: 0 auto 1.2rem; opacity: 0.3; }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* ─── Divider ───────────────────────────────────────────────── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 3.5rem 0;
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      background: var(--deep);
+      padding: 3.5rem clamp(1.5rem, 5vw, 5rem) 2.5rem;
+    }
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2.5rem;
+    }
+    .footer-brand .logo-name { font-size: 1.9rem; }
+    .footer-brand p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.6rem;
+      max-width: 260px;
+    }
+    .footer-col h4 {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .footer-col p, .footer-col address {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-style: normal;
+      line-height: 1.9;
+    }
+    .footer-bottom {
+      max-width: 1280px;
+      margin: 2.5rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .footer-bottom p {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .footer-bottom span { color: var(--gold); }
+
+    /* ─── Animations ────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hidden-item {
+      display: none !important;
+    }
+    .fade-out {
+      animation: fadeOut 0.2s ease forwards;
+    }
+    .fade-in {
+      animation: fadeUp 0.4s ease both;
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(10px); }
+    }
+
+    /* ─── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .controls-inner { height: auto; padding: 0.8rem 0; gap: 0.6rem; }
+      .cat-tabs { margin-left: 0; }
+      .search-wrap { max-width: 100%; }
+      .header-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-name">AURUM</span>
+      <span class="logo-sub">Fine Dining · Est. 2009</span>
+    </div>
+    <div class="header-badge">New Delhi &nbsp;·&nbsp; Open 12–11 PM</div>
+  </div>
+</header>
+
+<!-- ═══════════════════════ HERO ═════════════════════════ -->
+<section class="hero">
+  <p class="hero-eyebrow">Our Menu</p>
+  <h1>A Journey of <em>Flavours</em></h1>
+  <p class="hero-desc">Each dish is a carefully composed expression of tradition and craft — served with elegance.</p>
+</section>
+
+<!-- ═══════════════════════ CONTROLS ═════════════════════ -->
+<div class="controls">
+  <div class="controls-inner">
+    <!-- Search -->
+    <div class="search-wrap">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#c4a04e" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search dishes…" autocomplete="off"/>
+    </div>
+
+    <!-- Price filter -->
+    <select class="price-select" id="priceFilter">
+      <option value="all">All Prices</option>
+      <option value="below200">Below ₹200</option>
+      <option value="200to500">₹200 – ₹500</option>
+      <option value="above500">Above ₹500</option>
+    </select>
+
+    <!-- Category tabs -->
+    <div class="cat-tabs" id="catTabs">
+      <button class="cat-btn active" data-cat="all">All</button>
+      <button class="cat-btn" data-cat="starters">Starters</button>
+      <button class="cat-btn" data-cat="mains">Main Course</button>
+      <button class="cat-btn" data-cat="desserts">Desserts</button>
+      <button class="cat-btn" data-cat="beverages">Beverages</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN ══════════════════════════ -->
+<main id="mainContent">
+  <!-- Cards injected by JS -->
+</main>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo">
+        <span class="logo-name">AURUM</span>
+        <span class="logo-sub">Fine Dining · Est. 2009</span>
+      </div>
+      <p>Where every meal becomes a memory worth cherishing.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Location</h4>
+      <address>
+        12 Lodhi Estate, South Block<br/>
+        New Delhi – 110 003<br/>
+        India
+      </address>
+    </div>
+    <div class="footer-col">
+      <h4>Reservations</h4>
+      <p>
+        +91 11 4050 6060<br/>
+        hello@aurumdining.in<br/>
+        Open: Mon – Sun, 12 PM – 11 PM
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>Follow Us</h4>
+      <p>
+        @aurumdining<br/>
+        Instagram · Facebook<br/>
+        Zomato · Swiggy
+      </p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Aurum Fine Dining. All rights reserved.</p>
+    <p>Crafted with <span>♥</span> in New Delhi</p>
+  </div>
+</footer>
+
+<!-- ═══════════════════════ SCRIPT ════════════════════════ -->
+<script>
+  /* ── Menu Data ──────────────────────────────────────────────── */
+  const menuItems = [
+    /* STARTERS */
+    {
+      id: 1, name: "Gilafi Seekh Kebab", category: "starters",
+      desc: "Minced lamb with fresh herbs, grilled on iron skewers over coal.",
+      price: 380, type: "nonveg", popular: true,
+      img: "https://images.unsplash.com/photo-1630383249896-424e482df921?w=600&q=80"
+    },
+    {
+      id: 2, name: "Truffle Mushroom Bruschetta", category: "starters",
+      desc: "Crispy sourdough topped with black truffle, sautéed forest mushrooms & herbs.",
+      price: 320, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=600&q=80"
+    },
+    {
+      id: 3, name: "Tandoori Jhinga", category: "starters",
+      desc: "Jumbo tiger prawns marinated in spiced yoghurt, cooked in the clay oven.",
+      price: 580, type: "nonveg", popular: true,
+      img: "https://images.unsplash.com/photo-1606491048802-8342506d6471?w=600&q=80"
+    },
+    {
+      id: 4, name: "Paneer Tikka Royale", category: "starters",
+      desc: "Cottage cheese cubes in a saffron marinade with peppers and caramelised onions.",
+      price: 280, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=600&q=80"
+    },
+    {
+      id: 5, name: "Soup Du Jour", category: "starters",
+      desc: "Chef's seasonal selection — served with warm artisan bread.",
+      price: 160, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80"
+    },
+
+    /* MAIN COURSE */
+    {
+      id: 6, name: "Dum Gosht Biryani", category: "mains",
+      desc: "Slow-cooked basmati layered with tender lamb, saffron and fried onions.",
+      price: 780, type: "nonveg", popular: true,
+      img: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80"
+    },
+    {
+      id: 7, name: "Butter Chicken Maharani", category: "mains",
+      desc: "Velvety tomato-cream sauce with slow-charred chicken tikka. A timeless classic.",
+      price: 620, type: "nonveg", popular: true,
+      img: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80"
+    },
+    {
+      id: 8, name: "Dal Makhani Noir", category: "mains",
+      desc: "Black lentils simmered overnight with cream, butter, and aged spices.",
+      price: 340, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80"
+    },
+    {
+      id: 9, name: "Grilled Sea Bass", category: "mains",
+      desc: "Lemon-herb crusted sea bass with saffron beurre blanc and seasonal greens.",
+      price: 950, type: "nonveg", popular: false,
+      img: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80"
+    },
+    {
+      id: 10, name: "Wild Mushroom Risotto", category: "mains",
+      desc: "Arborio rice slow-stirred with porcini, truffle oil, and aged parmesan.",
+      price: 490, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600&q=80"
+    },
+    {
+      id: 11, name: "Rogan Josh Classique", category: "mains",
+      desc: "Kashmiri braised lamb in an aromatic Kashmiri chilli and whole-spice gravy.",
+      price: 740, type: "nonveg", popular: true,
+      img: "https://images.unsplash.com/photo-1607330289024-1535c6b4e1c1?w=600&q=80"
+    },
+
+    /* DESSERTS */
+    {
+      id: 12, name: "Gulab Jamun Soufflé", category: "desserts",
+      desc: "A warm soufflé infused with rose and cardamom; served with vanilla kulfi.",
+      price: 290, type: "veg", popular: true,
+      img: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80"
+    },
+    {
+      id: 13, name: "Dark Chocolate Fondant", category: "desserts",
+      desc: "70% Valrhona chocolate with a liquid centre, served with sea-salt caramel.",
+      price: 360, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80"
+    },
+    {
+      id: 14, name: "Shahi Tukda", category: "desserts",
+      desc: "Gold-dusted double-cream bread pudding soaked in rose-saffron rabdi.",
+      price: 220, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=600&q=80"
+    },
+    {
+      id: 15, name: "Mango Malai Panna Cotta", category: "desserts",
+      desc: "Silky panna cotta with Alphonso mango coulis and candied pistachios.",
+      price: 280, type: "veg", popular: true,
+      img: "https://images.unsplash.com/photo-1488477304112-4944851de03d?w=600&q=80"
+    },
+
+    /* BEVERAGES */
+    {
+      id: 16, name: "Rose & Lychee Cooler", category: "beverages",
+      desc: "House-made rose syrup, lychee juice, lemon, and chilled soda.",
+      price: 180, type: "veg", popular: true,
+      img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&q=80"
+    },
+    {
+      id: 17, name: "Masala Chai Royale", category: "beverages",
+      desc: "Full-leaf Darjeeling tea simmered with cardamom, ginger, and clove cream.",
+      price: 120, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80"
+    },
+    {
+      id: 18, name: "Virgin Saffron Mojito", category: "beverages",
+      desc: "Fresh mint, saffron water, lime juice, and elderflower tonic.",
+      price: 210, type: "veg", popular: false,
+      img: "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=600&q=80"
+    },
+    {
+      id: 19, name: "Cold Brew Kahwa", category: "beverages",
+      desc: "Green Kashmiri tea cold-brewed with cinnamon, almonds, and saffron.",
+      price: 195, type: "veg", popular: true,
+      img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80"
+    },
+  ];
+
+  /* ── Category config ────────────────────────────────────────── */
+  const categories = [
+    { key: "starters",   label: "Starters" },
+    { key: "mains",      label: "Main Course" },
+    { key: "desserts",   label: "Desserts" },
+    { key: "beverages",  label: "Beverages" },
+  ];
+
+  /* ── State ──────────────────────────────────────────────────── */
+  let activeCategory = "all";
+  let activePriceFilter = "all";
+  let searchQuery = "";
+
+  /* ── Filter logic ───────────────────────────────────────────── */
+  function applyFilters() {
+    const q = searchQuery.toLowerCase().trim();
+    return menuItems.filter(item => {
+      const catMatch = activeCategory === "all" || item.category === activeCategory;
+      const priceMatch =
+        activePriceFilter === "all"        ? true :
+        activePriceFilter === "below200"   ? item.price < 200 :
+        activePriceFilter === "200to500"   ? item.price >= 200 && item.price <= 500 :
+        activePriceFilter === "above500"   ? item.price > 500 : true;
+      const searchMatch = !q || item.name.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q);
+      return catMatch && priceMatch && searchMatch;
+    });
+  }
+
+  /* ── Render ─────────────────────────────────────────────────── */
+  function render() {
+    const main = document.getElementById('mainContent');
+    const filtered = applyFilters();
+
+    // Group by category (only show non-empty sections)
+    const sections = (activeCategory === "all" ? categories : categories.filter(c => c.key === activeCategory));
+
+    let html = "";
+    let totalShown = 0;
+
+    sections.forEach((cat, idx) => {
+      const items = filtered.filter(i => i.category === cat.key);
+      if (!items.length) return;
+      totalShown += items.length;
+
+      if (idx > 0) html += `<hr class="section-divider"/>`;
+      html += `
+        <div class="section-header">
+          <h2 class="section-title">${cat.label}</h2>
+          <div class="section-line"></div>
+          <span class="section-count">${items.length} ${items.length === 1 ? "dish" : "dishes"}</span>
+        </div>
+        <div class="menu-grid">
+          ${items.map((item, i) => cardHTML(item, i)).join("")}
+        </div>
+      `;
+    });
+
+    if (totalShown === 0) {
+      html = `
+        <div class="menu-grid">
+          <div class="empty-state">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p>No dishes found for your selection.<br/>Try adjusting the filters or search.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    main.innerHTML = html;
+  }
+
+  /* ── Card template ──────────────────────────────────────────── */
+  function cardHTML(item, idx) {
+    const delay = (idx * 60) + "ms";
+    return `
+      <div class="menu-card" style="animation-delay:${delay}">
+        ${item.img ? `
+          <div class="card-img-wrap">
+            <img class="card-img" src="${item.img}" alt="${item.name}" loading="lazy" onerror="this.parentElement.style.display='none'"/>
+            ${item.popular ? `<span class="badge-popular">⭐ Popular</span>` : ""}
+          </div>` : (item.popular ? `<div style="padding:0.8rem 1rem 0;"><span class="badge-popular" style="position:static;display:inline-block">⭐ Popular</span></div>` : "")}
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-name">${item.name}</span>
+            <span class="card-price">₹${item.price}</span>
+          </div>
+          <p class="card-desc">${item.desc}</p>
+          <div class="card-footer">
+            <span class="food-type">
+              <span class="food-dot ${item.type}"></span>
+              <span class="food-label ${item.type}">${item.type === "veg" ? "Veg" : "Non-Veg"}</span>
+            </span>
+            <span class="card-cat-tag">${catLabel(item.category)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function catLabel(key) {
+    const map = { starters:"Starter", mains:"Main", desserts:"Dessert", beverages:"Beverage" };
+    return map[key] || key;
+  }
+
+  /* ── Event listeners ────────────────────────────────────────── */
+  // Category tabs
+  document.getElementById('catTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.cat-btn');
+    if (!btn) return;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCategory = btn.dataset.cat;
+    render();
+  });
+
+  // Price filter
+  document.getElementById('priceFilter').addEventListener('change', e => {
+    activePriceFilter = e.target.value;
+    render();
+  });
+
+  // Search
+  let searchTimer;
+  document.getElementById('searchInput').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = e.target.value;
+      render();
+    }, 220);
+  });
+
+  /* ── Initial render ─────────────────────────────────────────── */
+  render();
+</script>
+</body>
+</html> 
